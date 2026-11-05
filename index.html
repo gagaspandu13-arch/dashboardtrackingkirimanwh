@@ -1,712 +1,553 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-950">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Portal Tutorial Toko - Modern Knowledge Base</title>
-
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Tracking Pengiriman Toko</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Pro 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter & Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { 
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
-                    },
                     colors: {
                         brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            900: '#312e81',
-                            950: '#1e1b4b'
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
                         }
                     },
                     animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 2.5s infinite linear',
                     },
                     keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-10px)' },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
                         }
                     }
                 }
             }
         }
     </script>
-
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Anti-Copy Protection & Touch Optimisations */
-        .no-select {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
-
-        /* Dynamic Theme Tokens */
-        body.theme-dark {
-            background-color: #020617;
-            color: #f8fafc;
-        }
-
-        body.theme-light {
-            background-color: #f1f5f9;
-            color: #0f172a;
-        }
-
-        /* Glassmorphism Design Tokens (Dark vs Light) */
-        body.theme-dark .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        body.theme-light .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-
-        body.theme-dark .glass-input {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-        }
-
-        body.theme-light .glass-input {
-            background: rgba(241, 245, 249, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            color: #0f172a;
-        }
-
-        body.theme-light .text-white {
-            color: #0f172a !important;
-        }
-
-        body.theme-light .text-slate-400 {
-            color: #64748b !important;
-        }
-
-        body.theme-light .text-slate-300 {
-            color: #475569 !important;
-        }
-
-        body.theme-light .bg-slate-900\/80,
-        body.theme-light .bg-slate-900\/90 {
-            background-color: rgba(255, 255, 255, 0.9) !important;
-        }
-
-        body.theme-light .bg-slate-950 {
-            background-color: #f8fafc !important;
-        }
-
-        body.theme-light .bg-slate-800 {
-            background-color: #e2e8f0 !important;
-        }
-
-        body.theme-light .border-white\/10 {
-            border-color: rgba(0, 0, 0, 0.08) !important;
-        }
-
-        .glass-card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .glass-card-hover:active {
-            transform: scale(0.98);
-        }
-
-        /* Watermark Grid Background */
-        .watermark-grid {
-            background-image: repeating-linear-gradient(
-                -45deg,
-                rgba(255, 255, 255, 0.03),
-                rgba(255, 255, 255, 0.03) 120px,
-                rgba(0, 0, 0, 0.08) 120px,
-                rgba(0, 0, 0, 0.08) 240px
-            );
-        }
-
-        /* Custom Mobile Scrollbar */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.4);
-            border-radius: 99px;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .shimmer-bg {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
         }
     </style>
 </head>
-<body class="h-full theme-dark font-sans no-select antialiased overflow-x-hidden selection:bg-brand-500/30 selection:text-white" oncontextmenu="return false;">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300 pb-10">
 
-    <div id="app" class="min-h-full flex flex-col justify-between">
-
-        <!-- =================================================================== -->
-        <!-- 🔒 VIEW 1: AUTHENTICATION SCREEN (MOBILE FIRST LUXURY DESIGN) -->
-        <!-- =================================================================== -->
-        <div id="login-view" class="min-h-screen flex flex-col justify-between p-5 relative overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
+    <!-- MODAL LOGIN AWAL -->
+    <div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-opacity duration-300">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600"></div>
             
-            <!-- Theme Toggle Floating Button on Login View -->
-            <div class="absolute top-4 right-4 z-20">
-                <button onclick="toggleTheme()" class="w-10 h-10 bg-slate-800/80 hover:bg-slate-700/80 text-amber-400 border border-white/10 rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-md transition">
-                    <i class="fa-solid fa-sun text-sm" id="login-theme-icon"></i>
-                </button>
-            </div>
-
-            <!-- Ambient Glow Effects -->
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-brand-600/20 rounded-full blur-[120px] pointer-events-none"></div>
-            <div class="absolute bottom-10 -right-20 w-72 h-72 bg-emerald-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-            <!-- Top Header Branding -->
-            <div class="pt-6 text-center z-10 flex flex-col items-center">
-                <!-- Dynamic Responsive Logo Slot (Targeting "logo alfamidi" in local GitHub repo) -->
-                <div id="login-logo-container" class="mb-3 flex items-center justify-center p-2">
+            <div class="text-center mb-6 pt-2">
+                <!-- Logo Alfamidi pada Modal Login -->
+                <div class="w-20 h-20 rounded-2xl bg-white/10 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 flex items-center justify-center mx-auto mb-3 shadow-md">
                     <img src="logo alfamidi.png" 
+                         onerror="this.onerror=null; this.src='logo alfamidi.jpg'; if(!this.src.endsWith('jpeg')) this.src='logo alfamidi.jpeg'; if(!this.src.endsWith('svg')) this.src='logo alfamidi.svg';" 
                          alt="Logo Alfamidi" 
-                         onerror="this.onerror=null; this.src='logo alfamidi.jpg'; this.onerror=function(){ this.src='logo alfamidi.jpeg'; this.onerror=function(){ this.parentElement.innerHTML='<div class=\'inline-flex items-center justify-center p-3.5 bg-gradient-to-tr from-brand-600 to-indigo-500 rounded-2xl shadow-xl shadow-brand-600/30 border border-white/20 animate-float\'><i class=\'fa-solid fa-play text-white text-2xl ml-0.5\'></i></div>'; }; }" 
-                         class="max-h-16 w-auto object-contain filter drop-shadow-xl transition-all duration-300 hover:scale-105">
+                         class="w-full h-full object-contain">
                 </div>
-                <h1 class="text-2xl font-black text-white tracking-tight">STORE KNOWLEDGE BASE</h1>
-                <p class="text-xs font-semibold text-slate-400 mt-1 uppercase tracking-widest">Portal Video Tutorial Toko</p>
+                <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Portal Akses Tim Toko</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Silakan login untuk memantau pengiriman barang</p>
             </div>
 
-            <!-- Login Glass Card -->
-            <div class="w-full max-w-sm mx-auto glass-card rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 my-auto my-6 border border-white/10">
-                <div class="mb-5 border-b border-white/10 pb-4">
-                    <h2 class="text-lg font-bold text-white flex items-center">
-                        <i class="fa-solid fa-shield-halved text-brand-500 mr-2.5"></i> Verifikasi Karyawan
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Masukkan NIK Karyawan & Password Access</p>
-                </div>
-
-                <!-- Alert Message Container -->
-                <div id="login-alert" class="hidden mb-4 p-3 rounded-xl text-xs font-medium border border-rose-500/30 bg-rose-500/10 text-rose-300 text-center animate-shake"></div>
-
-                <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
-                    <!-- NIK Input -->
-                    <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">NIK Karyawan</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                                <i class="fa-solid fa-id-badge text-sm"></i>
-                            </span>
-                            <input type="number" id="input-nik" required placeholder="Masukkan NIK" 
-                                class="w-full glass-input pl-10 pr-4 py-3 rounded-xl text-sm font-semibold text-white placeholder-slate-500 focus:outline-none transition font-mono">
-                        </div>
-                    </div>
-
-                    <!-- Password Input -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Password</label>
-                        </div>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                                <i class="fa-solid fa-key text-sm"></i>
-                            </span>
-                            <input type="password" id="input-password" maxlength="12" required placeholder="Silahkan input password" 
-                                class="w-full glass-input pl-10 pr-4 py-3 rounded-xl text-sm font-semibold text-white placeholder-slate-500 focus:outline-none transition font-mono">
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button type="submit" id="btn-login"
-                        class="w-full mt-3 bg-gradient-to-r from-brand-600 via-indigo-600 to-violet-600 hover:from-brand-500 hover:to-violet-500 text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-600/30 active:scale-[0.98] transition-all duration-200 flex items-center justify-center space-x-2 text-sm border border-white/20">
-                        <span id="login-btn-text">Masuk Dashboard</span>
-                        <i class="fa-solid fa-arrow-right text-xs" id="login-btn-icon"></i>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Footer Security Note -->
-            <div class="pb-4 text-center z-10">
-                <p class="text-[10px] text-slate-500 font-medium flex items-center justify-center">
-                    <i class="fa-solid fa-lock text-emerald-500 mr-1.5"></i>
-                    Sistem Keamanan Terenkripsi &bull; Internal Toko Only
-                </p>
-            </div>
-        </div>
-
-
-        <!-- =================================================================== -->
-        <!-- 📱 VIEW 2: MAIN DASHBOARD VIEW (SMARTPHONE OPTIMIZED) -->
-        <!-- =================================================================== -->
-        <div id="dashboard-view" class="hidden min-h-screen flex-col bg-slate-950 pb-12">
-            
-            <!-- MOBILE TOP APP BAR -->
-            <header class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-xl border-b border-white/10 shadow-lg">
-                <div class="max-w-md sm:max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
-                    <!-- Brand Title & Responsive Dynamic Logo -->
-                    <div class="flex items-center space-x-3">
-                        <div id="header-logo-container" class="flex items-center justify-center max-h-10">
-                            <img src="logo alfamidi.png" 
-                                 alt="Logo Alfamidi" 
-                                 onerror="this.onerror=null; this.src='logo alfamidi.jpg'; this.onerror=function(){ this.src='logo alfamidi.jpeg'; this.onerror=function(){ this.parentElement.innerHTML='<div class=\'w-10 h-10 bg-gradient-to-tr from-brand-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-md shadow-brand-600/30 border border-white/20\'><i class=\'fa-solid fa-play text-white text-lg\'></i></div>'; }; }" 
-                                 class="max-h-10 w-auto object-contain">
-                        </div>
-                        <div>
-                            <h2 class="font-black text-white text-sm tracking-tight leading-none">TUTORIAL TOKO</h2>
-                            <p class="text-[10px] font-bold text-emerald-400 mt-0.5 flex items-center">
-                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5 animate-pulse-slow"></span> System Active
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- User NIK Info Badge & Logout -->
-                    <div class="flex items-center space-x-2">
-                        <!-- Theme Toggle Button -->
-                        <button onclick="toggleTheme()" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-white/10 rounded-xl flex items-center justify-center transition" title="Ganti Mode Terang/Gelap">
-                            <i class="fa-solid fa-sun text-xs" id="header-theme-icon"></i>
-                        </button>
-
-                        <div class="bg-slate-800/90 border border-white/10 px-3 py-1 rounded-xl text-right">
-                            <span class="text-[9px] font-extrabold text-slate-400 block uppercase tracking-wider leading-none">NIK AKTIF</span>
-                            <span class="text-xs font-black text-brand-400 font-mono" id="user-nik-display">00000000</span>
-                        </div>
-                        <button onclick="handleLogout()" class="w-9 h-9 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-white/10 rounded-xl flex items-center justify-center transition">
-                            <i class="fa-solid fa-power-off text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <!-- MAIN BODY CONTENT -->
-            <main class="flex-grow max-w-md sm:max-w-5xl w-full mx-auto px-4 py-4 space-y-4">
-
-                <!-- SEARCH & DYNAMIC CATEGORY FILTER BAR -->
-                <div class="glass-card p-3.5 rounded-2xl space-y-3">
-                    <!-- Search Input -->
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                        </span>
-                        <input type="text" id="search-input" onkeyup="filterVideos()" placeholder="Cari semua video di Drive (Genset, BKL, POS)..."
-                            class="w-full pl-9 pr-4 py-2.5 glass-input rounded-xl text-xs font-medium text-white placeholder-slate-500 focus:outline-none">
-                    </div>
-
-                    <!-- Dynamic Category Pills -->
-                    <div class="flex items-center space-x-2 overflow-x-auto pb-1 hide-scrollbar" id="category-filters">
-                        <!-- Categories populated dynamically via JS -->
-                    </div>
-                </div>
-
-                <!-- SECTION TITLE & LEADERBOARD TOGGLE INFO -->
-                <div class="flex justify-between items-center px-1 pt-2">
-                    <h3 id="section-title" class="font-black text-xs text-white uppercase tracking-wider flex items-center">
-                        <i class="fa-solid fa-fire-flame-curved text-amber-500 mr-2"></i> Paling Sering Dibuka Toko
-                    </h3>
-                    <span id="video-count-badge" class="text-[10px] font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md">Memuat...</span>
-                </div>
-
-                <!-- LOADING SPINNER & TUTORIAL VIDEO CARDS GRID -->
-                <div id="loading-spinner" class="py-12 text-center space-y-3">
-                    <i class="fa-solid fa-circle-notch fa-spin text-brand-500 text-3xl"></i>
-                    <p class="text-xs text-slate-400 font-medium">Memuat Video Tutorial...</p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 hidden" id="video-grid">
-                    <!-- Real Drive Video Cards inserted dynamically -->
-                </div>
-
-            </main>
-        </div>
-
-    </div>
-
-
-    <!-- =================================================================== -->
-    <!-- 🎬 PROTECTED VIDEO PLAYER MODAL & PORTRAIT/LANDSCAPE AUTO-FIT -->
-    <!-- =================================================================== -->
-    <div id="video-modal" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 hidden flex flex-col justify-between overflow-hidden">
-        
-        <!-- Top Control Bar -->
-        <div class="p-3 bg-slate-900/90 border-b border-white/10 flex justify-between items-center z-30">
-            <div class="flex items-center space-x-2 truncate pr-2">
-                <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider flex-shrink-0">
-                    Hanya Lihat
-                </span>
-                <h3 id="modal-video-title" class="font-bold text-white text-xs truncate max-w-xs">Judul Video Tutorial</h3>
-            </div>
-            <button onclick="closeVideoModal()" class="w-8 h-8 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center rounded-xl transition flex-shrink-0">
-                <i class="fa-solid fa-xmark text-base"></i>
-            </button>
-        </div>
-
-        <!-- Central Video Player Area (Auto Aspect Ratio Support for Portrait & Landscape) -->
-        <div class="relative flex-grow bg-slate-950 flex items-center justify-center overflow-hidden p-2">
-            
-            <!-- Dynamic Video Embed Container -->
-            <div id="iframe-container" class="w-full max-w-lg h-full max-h-[82vh] relative flex items-center justify-center rounded-2xl overflow-hidden shadow-2xl bg-black">
-                <iframe id="video-iframe" class="w-full h-full border-0 rounded-2xl" 
-                    allow="autoplay; encrypted-media; picture-in-picture" src=""></iframe>
-
-                <!-- 🛡️ TOP-RIGHT OVERLAY SHIELD: Memblokir Klik Tombol Pop-out Google Drive (↗) -->
-                <div class="absolute top-0 right-0 w-20 h-20 bg-transparent z-30 cursor-default" title="Akses Luar Diblokir"></div>
-            </div>
-
-            <!-- DYNAMIC WATERMARK OVERLAY "INTERNAL USE ONLY - NIK" -->
-            <div class="absolute inset-0 watermark-grid pointer-events-none flex flex-col justify-between p-4 select-none z-10">
-                <div class="flex justify-between text-[10px] font-mono text-white/30 font-bold">
-                    <span class="watermark-nik-text">NIK: -</span>
-                    <span>INTERNAL USE ONLY</span>
-                </div>
-                
-                <div class="text-center font-mono text-sm sm:text-xl text-white/15 font-black tracking-widest uppercase transform -rotate-12 select-none">
-                    INTERNAL USE ONLY &bull; DILARANG MEREKAM
-                </div>
-
-                <div class="flex justify-between text-[10px] font-mono text-white/30 font-bold">
-                    <span>PROPERTY OF STORE</span>
-                    <span class="watermark-nik-text">NIK: -</span>
-                </div>
-            </div>
-
-            <!-- INTERACTION SHIELD OVERLAY (Transparent Anti-Right-Click Layer) -->
-            <div class="absolute inset-0 bg-transparent z-20 pointer-events-none"></div>
-        </div>
-
-        <!-- Bottom Action Bar & Watch Timer -->
-        <div class="p-3 bg-slate-900/90 border-t border-white/10 flex items-center justify-between text-xs z-30">
-            <div class="flex items-center space-x-2.5">
-                <div class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
+            <form id="loginForm" class="space-y-4">
+                <!-- NIK Input -->
                 <div>
-                    <span class="text-[10px] text-slate-400 block uppercase font-bold">Durasi Menonton</span>
-                    <b id="timer-display" class="font-mono text-emerald-400 text-xs font-bold">00:00:00</b>
+                    <label for="nikInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">NIK (Nomor Induk Karyawan)</label>
+                    <div class="relative">
+                        <input type="text" id="nikInput" required placeholder="Masukkan NIK Anda..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <i class="fa-solid fa-id-card absolute left-3 top-3.5 text-slate-400 text-xs"></i>
+                    </div>
                 </div>
-            </div>
-            
-            <button onclick="closeVideoModal()" 
-                class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-black transition border border-white/10">
-                Tutup Video
-            </button>
+
+                <!-- Jabatan Dropdown -->
+                <div>
+                    <label for="jabatanSelect" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Jabatan</label>
+                    <div class="relative">
+                        <select id="jabatanSelect" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                            <option value="" disabled selected>-- Pilih Jabatan --</option>
+                            <option value="COS">COS</option>
+                            <option value="ACOS">ACOS</option>
+                            <option value="MD FRESH">MD FRESH</option>
+                            <option value="CREW">CREW</option>
+                        </select>
+                        <i class="fa-solid fa-user-tie absolute left-3 top-3.5 text-slate-400 text-xs"></i>
+                    </div>
+                </div>
+
+                <!-- Password Input Dinamis Tanggal HP User (DDMMYYYY) -->
+                <div>
+                    <label for="passwordInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Password</label>
+                    <div class="relative">
+                        <input type="password" id="passwordInput" required placeholder="Silahkan isi password" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <i class="fa-solid fa-lock absolute left-3 top-3.5 text-slate-400 text-xs"></i>
+                    </div>
+                </div>
+
+                <button type="submit" id="loginBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm py-3 rounded-xl shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center space-x-2 mt-2">
+                    <span>Masuk Dashboard</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
         </div>
     </div>
 
+    <!-- HEADER DASHBOARD -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 text-white backdrop-blur-xl border-b border-slate-800 shadow-xl overflow-hidden">
+        <div class="absolute inset-0 shimmer-bg animate-shimmer pointer-events-none"></div>
+        <div class="max-w-md mx-auto px-4 py-2.5 flex items-center justify-between relative z-10">
+            <!-- Logo Perusahaan -->
+            <div class="flex items-center space-x-2.5">
+                <div class="w-9 h-9 rounded-xl bg-white/10 border border-white/20 p-1 flex items-center justify-center overflow-hidden shadow-inner shrink-0">
+                    <img src="logo alfamidi.png" 
+                         onerror="this.onerror=null; this.src='logo alfamidi.jpg'; if(!this.src.endsWith('jpeg')) this.src='logo alfamidi.jpeg'; if(!this.src.endsWith('svg')) this.src='logo alfamidi.svg';" 
+                         alt="Logo Alfamidi" 
+                         class="w-full h-full object-contain">
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xs tracking-wide text-emerald-400 flex items-center gap-1">
+                        <span>TRACKING KIRIMAN</span>
+                        <span class="inline-flex items-center px-1 py-0.2 rounded-full text-[8px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-0.5"></span>LIVE
+                        </span>
+                    </h1>
+                    <p class="text-[9px] text-slate-400 font-medium">Monitoring Armada Toko</p>
+                </div>
+            </div>
 
-    <!-- =================================================================== -->
-    <!-- ⚙️ FRONT-END JAVASCRIPT LOGIC & REALTIME DRIVE INTEGRATION -->
-    <!-- =================================================================== -->
+            <!-- Kanan Atas: Copyright / Credit & Controls -->
+            <div class="flex flex-col items-end gap-1">
+                <!-- Copyright & Inspiration (Pojok Kanan Atas) -->
+                <div class="text-[9px] text-slate-400 leading-none">
+                    © <span class="font-bold text-slate-200">Gagas</span> <span class="text-slate-500">|</span> Insp. <span class="font-bold text-slate-200">MNO</span>
+                </div>
+
+                <!-- Dark / Light Mode Toggle & Reload -->
+                <div class="flex items-center space-x-1.5">
+                    <button id="refreshBtn" onclick="fetchData()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center justify-center transition active:scale-95" title="Refresh Data">
+                        <i class="fa-solid fa-rotate text-[10px]" id="refreshIcon"></i>
+                    </button>
+                    <button id="themeToggle" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 flex items-center justify-center transition active:scale-95">
+                        <i class="fa-solid fa-sun text-[10px]" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-md mx-auto px-4 pt-4 flex-1 w-full space-y-4">
+        <!-- FILTER CONTAINER -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 shadow-sm space-y-3">
+            <div class="grid grid-cols-1 gap-2.5">
+                <!-- Dropdown Tanggal Loading -->
+                <div>
+                    <label for="filterDate" class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
+                        <i class="fa-regular fa-calendar-check text-emerald-500"></i> Tanggal Loading
+                    </label>
+                    <select id="filterDate" onchange="filterAndRenderData()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-xs rounded-xl p-2.5 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <option value="ALL">Semua Tanggal Loading</option>
+                    </select>
+                </div>
+
+                <!-- Pencarian Toko -->
+                <div>
+                    <label for="searchQuery" class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-magnifying-glass text-emerald-500"></i> Cari Toko / Nopol / Faktur
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="searchQuery" onkeyup="filterAndRenderData()" placeholder="Ketik Kode/Nama Toko, Nopol..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-xs rounded-xl pl-8 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <i class="fa-solid fa-store absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIST PENGIRIMAN DENGAN UNGGULAN RELEVANCE & TIME SORT -->
+        <div id="shipmentContainer" class="space-y-4">
+            <!-- Loading State -->
+            <div class="text-center py-12 space-y-3">
+                <div class="inline-block w-10 h-10 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
+                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Memuat data pengiriman terbaru...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwmnXhK5hYa1P3fdeuRrB8Dn1oX5B2hXfeXDw1hY7XGScBypA5dBc9lyzsQvExNdpPC/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbw_FOTQ2bwkFc0mXy915R2I-NEcSenjNxpWlF8XDo0x4lsQ6UCtbO2MC_GREJMuCzzhfg/exec";
+        let rawShipmentData = [];
+        let autoRefreshTimer = null;
 
-        let currentUserNIK = null;
-        let selectedCategory = 'ALL';
-        let fetchedVideos = [];
-        let currentPlayingVideo = null;
-        let watchTimerInterval = null;
-        let totalSecondsWatched = 0;
-        let currentTheme = localStorage.getItem('app-theme') || 'dark';
-
-        // Apply saved theme on load
-        document.addEventListener('DOMContentLoaded', () => {
-            applyTheme(currentTheme);
+        // Theme Toggle Setup
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            themeIcon.className = isDark ? 'fa-solid fa-sun text-xs' : 'fa-solid fa-moon text-xs';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
 
-        // ==========================================
-        // 🌓 THEME MANAGEMENT (LIGHT / DARK MODE)
-        // ==========================================
-        function applyTheme(theme) {
-            currentTheme = theme;
-            localStorage.setItem('app-theme', theme);
-            
-            const body = document.body;
-            const loginIcon = document.getElementById('login-theme-icon');
-            const headerIcon = document.getElementById('header-theme-icon');
-
-            if (theme === 'light') {
-                body.classList.remove('theme-dark');
-                body.classList.add('theme-light');
-                if (loginIcon) loginIcon.className = 'fa-solid fa-moon text-sm text-slate-700';
-                if (headerIcon) headerIcon.className = 'fa-solid fa-moon text-xs text-slate-700';
-            } else {
-                body.classList.remove('theme-light');
-                body.classList.add('theme-dark');
-                if (loginIcon) loginIcon.className = 'fa-solid fa-sun text-sm text-amber-400';
-                if (headerIcon) headerIcon.className = 'fa-solid fa-sun text-xs text-amber-400';
-            }
+        // Initialize Theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+            themeIcon.className = 'fa-solid fa-moon text-xs';
         }
 
-        function toggleTheme() {
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            applyTheme(newTheme);
+        // Generator Password Tanggal Hari Ini (DDMMYYYY) dari Perangkat HP User
+        function getTodayPassword() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            return `${day}${month}${year}`;
         }
 
-        // ==========================================
-        // 🔒 AUTHENTICATION & LOGIN LOGIC
-        // ==========================================
-        async function handleLogin(event) {
-            event.preventDefault();
-            const nikInput = document.getElementById('input-nik').value.trim();
-            const passwordInput = document.getElementById('input-password').value.trim();
-            const alertBox = document.getElementById('login-alert');
-            const btnText = document.getElementById('login-btn-text');
-            const btnIcon = document.getElementById('login-btn-icon');
+        // Handle Form Login Submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const inputPass = document.getElementById('passwordInput').value.trim();
+            const expectedPass = getTodayPassword();
 
-            if (!nikInput || !passwordInput) {
-                showAlert('Silakan lengkapi NIK dan Password!');
+            if (inputPass !== expectedPass) {
+                alert('Password salah. Silahkan isi password!');
                 return;
             }
 
-            // Loading state
-            btnText.textContent = 'Verifikasi...';
-            btnIcon.className = 'fa-solid fa-circle-notch fa-spin text-xs';
-            alertBox.classList.add('hidden');
+            // Jika Password Benar, Tutup Modal Login
+            document.getElementById('loginModal').classList.add('hidden');
+            
+            // Simpan NIK & Jabatan ke sheet Monitoring User
+            saveUserLogin(
+                document.getElementById('nikInput').value.trim(),
+                document.getElementById('jabatanSelect').value
+            );
+
+            // Ambil Data Dashboard
+            fetchData();
+        });
+
+        // Simpan Data User Login ke Backend
+        function saveUserLogin(nik, jabatan) {
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'login',
+                    nik: nik,
+                    jabatan: jabatan
+                })
+            }).catch(err => console.error("Error logging user:", err));
+        }
+
+        // Fetch Data Pengiriman
+        async function fetchData() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.classList.add('animate-spin');
 
             try {
-                const response = await fetch(`${GOOGLE_WEB_APP_URL}?action=login&password=${encodeURIComponent(passwordInput)}`);
+                const response = await fetch(`${API_URL}?_nocache=${new Date().getTime()}`);
                 const result = await response.json();
 
-                if (result.status === 'success') {
-                    currentUserNIK = nikInput;
-                    document.getElementById('user-nik-display').textContent = currentUserNIK;
-                    
-                    // Update watermark elements with active NIK
-                    document.querySelectorAll('.watermark-nik-text').forEach(el => {
-                        el.textContent = `NIK: ${currentUserNIK}`;
-                    });
-
-                    // Switch views
-                    document.getElementById('login-view').classList.add('hidden');
-                    document.getElementById('dashboard-view').classList.remove('hidden');
-                    document.getElementById('dashboard-view').classList.add('flex');
-
-                    // Load videos
-                    fetchVideosFromDrive();
+                if (result.status === "success") {
+                    rawShipmentData = result.data || [];
+                    populateDateDropdown(rawShipmentData);
+                    filterAndRenderData();
                 } else {
-                    showAlert(result.message || 'Password harian tidak sesuai!');
-                }
-            } catch (error) {
-                showAlert('Gagal terhubung ke server. Periksa koneksi internet Anda!');
-            } finally {
-                btnText.textContent = 'Masuk Dashboard';
-                btnIcon.className = 'fa-solid fa-arrow-right text-xs';
-            }
-        }
-
-        function showAlert(msg) {
-            const alertBox = document.getElementById('login-alert');
-            alertBox.textContent = msg;
-            alertBox.classList.remove('hidden');
-        }
-
-        function handleLogout() {
-            currentUserNIK = null;
-            document.getElementById('input-nik').value = '';
-            document.getElementById('input-password').value = '';
-            document.getElementById('dashboard-view').classList.add('hidden');
-            document.getElementById('dashboard-view').classList.remove('flex');
-            document.getElementById('login-view').classList.remove('hidden');
-        }
-
-        // ==========================================
-        // 📹 FETCH & CATEGORY FILTERING LOGIC
-        // ==========================================
-        async function fetchVideosFromDrive() {
-            const spinner = document.getElementById('loading-spinner');
-            const grid = document.getElementById('video-grid');
-            spinner.classList.remove('hidden');
-            grid.classList.add('hidden');
-
-            try {
-                const response = await fetch(`${GOOGLE_WEB_APP_URL}?action=get_videos`);
-                const result = await response.json();
-
-                if (result.status === 'success' && result.data) {
-                    fetchedVideos = result.data;
-                    populateCategories(fetchedVideos);
-                    renderVideoCards();
-                } else {
-                    grid.innerHTML = `<div class="col-span-full py-8 text-center text-rose-400 text-xs">Gagal memuat video dari Drive.</div>`;
+                    showError("Gagal mengambil data dari spreadsheet");
                 }
             } catch (err) {
-                grid.innerHTML = `<div class="col-span-full py-8 text-center text-rose-400 text-xs">Error koneksi saat memuat data.</div>`;
+                console.error(err);
+                showError("Gagal terhubung ke server backend.");
             } finally {
-                spinner.classList.add('hidden');
-                grid.classList.remove('hidden');
+                refreshIcon.classList.remove('animate-spin');
             }
         }
 
-        function populateCategories(videos) {
-            const filterContainer = document.getElementById('category-filters');
-            const categories = ['ALL', ...new Set(videos.map(v => v.category || 'General'))];
+        // Fill Tanggal Loading Dropdown
+        function populateDateDropdown(data) {
+            const dateSelect = document.getElementById('filterDate');
+            const currentSelected = dateSelect.value;
+            const uniqueDates = [...new Set(data.map(item => item.tglLoading).filter(Boolean))];
 
-            filterContainer.innerHTML = categories.map(cat => `
-                <button onclick="setCategory('${cat}')" 
-                    class="category-btn text-[11px] font-bold px-3 py-1.5 rounded-xl whitespace-nowrap transition ${selectedCategory === cat ? 'bg-brand-600 text-white shadow-md' : 'bg-slate-800/80 text-slate-400 border border-white/10 hover:text-white'}">
-                    ${cat === 'ALL' ? 'Semua' : cat}
-                </button>
-            `).join('');
-        }
-
-        function setCategory(cat) {
-            selectedCategory = cat;
-            populateCategories(fetchedVideos);
-            renderVideoCards();
-        }
-
-        function filterVideos() {
-            renderVideoCards();
-        }
-
-        function renderVideoCards() {
-            const keyword = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
-            const grid = document.getElementById('video-grid');
-            const sectionTitle = document.getElementById('section-title');
-
-            // Filter berdasar Kategori dan Kata Kunci Cari
-            let filtered = fetchedVideos.filter(v => {
-                const categoryMatch = selectedCategory === 'ALL' || (v.category || 'General') === selectedCategory;
-                const searchMatch = v.title.toLowerCase().includes(keyword);
-                return categoryMatch && searchMatch;
+            dateSelect.innerHTML = '<option value="ALL">Semua Tanggal Loading</option>';
+            uniqueDates.forEach(dateStr => {
+                const opt = document.createElement('option');
+                opt.value = dateStr;
+                opt.textContent = dateStr;
+                dateSelect.appendChild(opt);
             });
 
-            // LOGIKA LEADERBOARD / TRENDING:
-            // Jika karyawan TIDAK sedang melakukan pencarian (keyword kosong), 
-            // maka batasi tampilan HANYA TOP 3 / TOP 5 video paling sering diputar.
-            const isSearching = keyword.length > 0;
-            if (!isSearching && selectedCategory === 'ALL') {
-                sectionTitle.innerHTML = `<i class="fa-solid fa-fire-flame-curved text-amber-500 mr-2"></i> Paling Sering Dibuka Toko`;
-                filtered = filtered.slice(0, 5); // Tampilkan hanya Top 5 Teratas
-            } else {
-                sectionTitle.innerHTML = `<i class="fa-solid fa-film text-brand-400 mr-2"></i> Hasil Pencarian Video`;
+            if (uniqueDates.includes(currentSelected)) {
+                dateSelect.value = currentSelected;
             }
+        }
 
-            document.getElementById('video-count-badge').textContent = `${filtered.length} Video Tampil`;
+        // Filter Data & Render Tampilan
+        function filterAndRenderData() {
+            const dateFilter = document.getElementById('filterDate').value;
+            const query = document.getElementById('searchQuery').value.toLowerCase().trim();
 
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-500 text-xs">Video tidak ditemukan. Coba kata kunci lain.</div>`;
+            const filtered = rawShipmentData.filter(item => {
+                const matchDate = (dateFilter === "ALL" || item.tglLoading === dateFilter);
+                const matchQuery = !query || 
+                    (item.kodeToko && item.kodeToko.toLowerCase().includes(query)) ||
+                    (item.namaToko && item.namaToko.toLowerCase().includes(query)) ||
+                    (item.nopol && item.nopol.toLowerCase().includes(query)) ||
+                    (item.noFaktur && item.noFaktur.toLowerCase().includes(query));
+                return matchDate && matchQuery;
+            });
+
+            renderShipments(filtered);
+        }
+
+        // Render Pengelompokan Per NOPOL
+        function renderShipments(data) {
+            const container = document.getElementById('shipmentContainer');
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 text-center space-y-2">
+                        <i class="fa-solid fa-truck-ramp-box text-3xl text-slate-400"></i>
+                        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Tidak ada data pengiriman ditemukan.</p>
+                    </div>`;
                 return;
             }
 
-            const rankBadges = [
-                { badge: '🥇 #1 MOST WATCHED', color: 'bg-amber-500/20 text-amber-400 border-amber-500/40' },
-                { badge: '🥈 #2 TOP TRENDING', color: 'bg-slate-300/20 text-slate-200 border-slate-300/40' },
-                { badge: '🥉 #3 POPULER', color: 'bg-amber-700/20 text-amber-300 border-amber-700/40' },
-                { badge: '⭐ #4 POPULER', color: 'bg-slate-800 text-slate-300 border-white/10' },
-                { badge: '⭐ #5 POPULER', color: 'bg-slate-800 text-slate-300 border-white/10' }
-            ];
+            // Grouping by NOPOL
+            const grouped = {};
+            data.forEach(item => {
+                const key = item.nopol || "ARMADA LAINNYA";
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(item);
+            });
 
-            grid.innerHTML = filtered.map((v, index) => {
-                const rankInfo = (!isSearching && selectedCategory === 'ALL' && rankBadges[index]) 
-                    ? rankBadges[index] 
-                    : { badge: v.category || 'General', color: 'bg-slate-950/80 text-white border-white/10' };
+            let html = '';
 
-                return `
-                <div class="glass-card glass-card-hover rounded-2xl overflow-hidden shadow-lg flex flex-col justify-between border border-white/10">
-                    <div class="relative h-32 bg-gradient-to-br from-brand-900 to-slate-900 p-3 flex flex-col justify-between">
-                        <span class="self-start border ${rankInfo.color} backdrop-blur-md text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider">
-                            ${rankInfo.badge}
-                        </span>
-                        
-                        <!-- TRIGGER PLAY VIDEO -->
-                        <button onclick="startPlayingVideo('${v.id}')" 
-                            class="self-center my-auto bg-brand-600 hover:bg-brand-500 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition active:scale-90 border border-white/30">
-                            <i class="fa-solid fa-play ml-0.5 text-lg"></i>
-                        </button>
-                    </div>
+            Object.keys(grouped).forEach(nopol => {
+                const items = grouped[nopol];
 
-                    <div class="p-3.5 space-y-1">
-                        <h4 class="font-bold text-xs text-white leading-snug line-clamp-2">${v.title}</h4>
-                        <div class="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
-                            <span><i class="fa-solid fa-eye text-brand-400 mr-1"></i> Dibuka ${v.viewsCount || 0}x</span>
-                            <span>Pencet untuk putar</span>
+                html += `
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                    <!-- NOPOL HEADER -->
+                    <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-3 px-4 flex items-center justify-between border-b border-slate-700/50">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xs font-bold">
+                                <i class="fa-solid fa-truck-fast"></i>
+                            </span>
+                            <div>
+                                <h3 class="font-extrabold text-sm tracking-wide text-amber-400">${nopol}</h3>
+                                <p class="text-[10px] text-slate-400 font-medium">${items.length} Toko Kiriman</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="px-3.5 pb-3.5 pt-2 border-t border-white/5 flex justify-between items-center text-[10px]">
-                        <span class="text-slate-400 font-medium flex items-center"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1.5"></i> Terproteksi</span>
-                        <button onclick="startPlayingVideo('${v.id}')" class="text-brand-400 font-extrabold hover:text-brand-300 flex items-center space-x-1">
-                            <span>Putar Video</span>
-                            <i class="fa-solid fa-chevron-right text-[9px]"></i>
-                        </button>
+                    <!-- LIST TOKO DALAM ARMADA INI -->
+                    <div class="p-3 space-y-3 divide-y divide-slate-100 dark:divide-slate-800/80">
+                `;
+
+                items.forEach((item, idx) => {
+                    const statusObj = calculateStatus(item);
+
+                    html += `
+                        <div class="${idx > 0 ? 'pt-3' : ''} space-y-2.5">
+                            <!-- Header Toko & Status -->
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <div class="flex items-center space-x-1.5">
+                                        <span class="text-[11px] font-bold px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">#${item.nomor || (idx + 1)}</span>
+                                        <h4 class="font-bold text-xs text-slate-900 dark:text-slate-100">${item.kodeToko} - ${item.namaToko}</h4>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2">
+                                        <span><i class="fa-solid fa-map-pin text-rose-500 mr-1"></i>${item.wilayah}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    ${statusObj.badgeHtml}
+                                </div>
+                            </div>
+
+                            <!-- Waktu & Estimasi Tiba (Jam Diperbesar) -->
+                            <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Jam Berangkat</span>
+                                    <span class="text-base font-extrabold text-slate-800 dark:text-slate-100">${item.jamBerangkat || '-'}</span>
+                                    <span class="text-[9px] text-slate-500 dark:text-slate-400 block font-medium">${item.tglLoading || ''}</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 block uppercase">EST Sampai</span>
+                                    <span class="text-base font-extrabold text-emerald-600 dark:text-emerald-400">${item.estSampai || '-'}</span>
+                                    <span class="text-[9px] text-slate-500 dark:text-slate-400 block font-medium">${item.tglSampai || ''}</span>
+                                </div>
+                            </div>
+
+                            <!-- Detail Container, DOS & Faktur -->
+                            <div class="grid grid-cols-2 gap-2 items-center">
+                                <!-- Box Muatan (Poin 5: Diperbesar) -->
+                                <div class="flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 p-2 rounded-xl">
+                                    <i class="fa-solid fa-boxes-packing text-amber-500 text-lg"></i>
+                                    <div>
+                                        <div class="text-sm font-extrabold text-amber-600 dark:text-amber-400 leading-none">
+                                            ${item.jmlContainer} <span class="text-[10px] font-bold">CTN</span> / ${item.jmlDos} <span class="text-[10px] font-bold">DOS</span>
+                                        </div>
+                                        <span class="text-[9px] text-slate-400 font-medium">Total Muatan</span>
+                                    </div>
+                                </div>
+
+                                <!-- Detail Faktur & Rp Faktur (Poin 6) -->
+                                <div class="text-right pl-2">
+                                    <span class="text-[10px] font-bold text-slate-400 block">No. Faktur</span>
+                                    <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block truncate">${item.noFaktur || '-'}</span>
+                                    <span class="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400 block">${formatRupiah(item.rpFaktur)}</span>
+                                </div>
+                            </div>
+
+                            <!-- Tombol Konfirmasi Berangkat (End Toko) -->
+                            <div class="pt-1">
+                                ${renderConfirmButton(item)}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
                     </div>
                 </div>
-            `;
-            }).join('');
+                `;
+            });
+
+            container.innerHTML = html;
         }
 
-        // ==========================================
-        // 🎬 VIDEO PLAYER & LOGGING STOPWATCH TIMER
-        // ==========================================
-        function startPlayingVideo(videoId) {
-            const video = fetchedVideos.find(v => v.id === videoId);
-            if (!video) return;
-
-            currentPlayingVideo = video;
-            totalSecondsWatched = 0;
-
-            document.getElementById('modal-video-title').textContent = video.title;
-            document.getElementById('video-iframe').src = `${video.driveEmbedUrl}?autoplay=1`;
-            document.getElementById('video-modal').classList.remove('hidden');
-
-            // Start Stopwatch Timer
-            clearInterval(watchTimerInterval);
-            updateTimerDisplay();
-            watchTimerInterval = setInterval(() => {
-                totalSecondsWatched++;
-                updateTimerDisplay();
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            const hrs = String(Math.floor(totalSecondsWatched / 3600)).padStart(2, '0');
-            const mins = String(Math.floor((totalSecondsWatched % 3600) / 60)).padStart(2, '0');
-            const secs = String(totalSecondsWatched % 60).padStart(2, '0');
-            document.getElementById('timer-display').textContent = `${hrs}:${mins}:${secs}`;
-        }
-
-        function closeVideoModal() {
-            clearInterval(watchTimerInterval);
-
-            if (currentPlayingVideo && totalSecondsWatched > 0) {
-                const durationFormatted = document.getElementById('timer-display').textContent;
-                
-                // Silent Post to Google Spreadsheet LOG_AKSES_VIDEO
-                fetch(GOOGLE_WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        nik: currentUserNIK,
-                        videoTitle: currentPlayingVideo.title,
-                        category: currentPlayingVideo.category || 'General',
-                        durationWatched: durationFormatted,
-                        status: 'Selesai'
-                    })
-                }).catch(err => console.log('Log Post Error:', err));
+        // Render Tombol Konfirmasi Berangkat / Actual Timestamp
+        function renderConfirmButton(item) {
+            if (item.endToko) {
+                return `
+                <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2 flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+                    <span class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check"></i> Actual Berangkat:
+                    </span>
+                    <span class="font-mono">${item.endToko}</span>
+                </div>`;
             }
 
-            document.getElementById('video-iframe').src = '';
-            document.getElementById('video-modal').classList.add('hidden');
-            currentPlayingVideo = null;
+            return `
+            <button onclick="confirmDeparture(${item.rowIndex}, this)" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold text-xs py-2.5 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-truck-arrow-right"></i>
+                <span>Konfirmasi Berangkat (End Toko)</span>
+            </button>`;
         }
+
+        // Logika Status Real-Time & Selisih Waktu Tiba
+        function calculateStatus(item) {
+            if (item.endToko) {
+                // Konfirmasi Sudah Diklik
+                return {
+                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1"><i class="fa-solid fa-check"></i> Selesai</span>`
+                };
+            }
+
+            const now = new Date();
+            const dateLoadingPart = parseDateString(item.tglLoading);
+            
+            if (!dateLoadingPart || !item.jamBerangkat) {
+                return {
+                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-500/20 text-slate-500 border border-slate-500/30">Belum Berangkat</span>`
+                };
+            }
+
+            const [hh, mm] = item.jamBerangkat.split(':').map(Number);
+            const departureTime = new Date(dateLoadingPart.year, dateLoadingPart.month - 1, dateLoadingPart.day, hh, mm);
+
+            if (now < departureTime) {
+                return {
+                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1"><i class="fa-solid fa-clock"></i> Belum Berangkat</span>`
+                };
+            } else {
+                return {
+                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-500/20 text-sky-500 border border-sky-500/30 animate-pulse flex items-center gap-1"><i class="fa-solid fa-truck-moving"></i> Dalam Perjalanan</span>`
+                };
+            }
+        }
+
+        // Action Trigger Konfirmasi Berangkat ke Google Apps Script
+        async function confirmDeparture(rowIndex, btnElem) {
+            if (!confirm("Apakah Anda yakin armada telah berangkat dari toko ini?")) return;
+
+            btnElem.disabled = true;
+            btnElem.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i> <span>Menyimpan...</span>`;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({
+                        action: 'confirm',
+                        rowIndex: rowIndex
+                    })
+                });
+
+                const resData = await response.json();
+                if (resData.status === "success") {
+                    fetchData(); // Reload data langsung
+                } else {
+                    alert("Gagal menyimpan konfirmasi: " + resData.message);
+                    btnElem.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Terjadi kesalahan jaringan.");
+                btnElem.disabled = false;
+            }
+        }
+
+        // Helper Parsers & Formatters
+        function parseDateString(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                return { day: parseInt(parts[0]), month: parseInt(parts[1]), year: parseInt(parts[2]) };
+            }
+            return null;
+        }
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka || 0);
+        }
+
+        function showError(msg) {
+            document.getElementById('shipmentContainer').innerHTML = `
+                <div class="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-6 text-center text-rose-500 space-y-2">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                    <p class="text-xs font-bold">${msg}</p>
+                </div>`;
+        }
+
+        // Auto Refresh Setiap 15 Detik
+        autoRefreshTimer = setInterval(() => {
+            const modalHidden = document.getElementById('loginModal').classList.contains('hidden');
+            if (modalHidden) {
+                fetchData();
+            }
+        }, 15000);
     </script>
 </body>
 </html>
