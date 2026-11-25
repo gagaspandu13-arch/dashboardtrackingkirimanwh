@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Tracking Pengiriman Toko</title>
+    <title>System Tracking Online</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -50,38 +50,75 @@
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300 pb-10">
 
-    <!-- MODAL LOGIN AWAL -->
-    <div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-opacity duration-300">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl relative overflow-hidden">
+    <!-- CUSTOM TOAST NOTIFICATION (Pengganti alert) -->
+    <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-full max-w-xs px-3 pointer-events-none space-y-2"></div>
+
+    <!-- CUSTOM CONFIRMATION MODAL (Pengganti confirm) -->
+    <div id="confirmModal" class="hidden fixed inset-0 z-[90] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 w-full max-w-xs shadow-2xl space-y-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-truck-arrow-right text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-900 dark:text-slate-100">Konfirmasi Keberangkatan</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="confirmModalText">Apakah armada sudah selesai bongkar dan berangkat dari toko ini?</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 pt-1">
+                <button type="button" id="confirmCancelBtn" class="flex-1 py-2.5 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition">Batal</button>
+                <button type="button" id="confirmProceedBtn" class="flex-1 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition">Ya, Berangkat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LOGIN AWAL (DUAL MODE: TIM TOKO & PIC WH MASTER) -->
+    <div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md transition-opacity duration-300 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl relative overflow-hidden my-auto">
             <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600"></div>
             
-            <div class="text-center mb-6 pt-2">
-                <!-- Logo Alfamidi pada Modal Login -->
-                <div class="w-20 h-20 rounded-2xl bg-white/10 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 flex items-center justify-center mx-auto mb-3 shadow-md">
+            <!-- Header Modal -->
+            <div class="text-center mb-5 pt-2">
+                <div class="w-16 h-16 rounded-2xl bg-white/10 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 flex items-center justify-center mx-auto mb-2.5 shadow-md">
                     <img src="logo alfamidi.png" 
                          onerror="this.onerror=null; this.src='logo alfamidi.jpg'; if(!this.src.endsWith('jpeg')) this.src='logo alfamidi.jpeg'; if(!this.src.endsWith('svg')) this.src='logo alfamidi.svg';" 
                          alt="Logo Alfamidi" 
                          class="w-full h-full object-contain">
                 </div>
-                <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">System Tracking Online Branch Manado</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Silakan login untuk memantau pengiriman barang</p>
+                <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100 tracking-tight">System Tracking Online</h2>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Silakan pilih akses login Anda di bawah ini</p>
             </div>
 
-            <form id="loginForm" class="space-y-4">
-                <!-- NIK Input -->
+            <!-- Switcher Tab Login -->
+            <div class="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 mb-5">
+                <button type="button" id="tabTokoBtn" onclick="switchLoginTab('TOKO')" class="py-2 rounded-lg text-xs font-extrabold transition-all bg-emerald-600 text-white shadow">
+                    <i class="fa-solid fa-store mr-1"></i> User Toko
+                </button>
+                <button type="button" id="tabMasterBtn" onclick="switchLoginTab('MASTER')" class="py-2 rounded-lg text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> PIC WH (Master)
+                </button>
+            </div>
+
+            <!-- Loading Status Sinkronisasi Master -->
+            <div id="authSyncBanner" class="mb-3 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-600 dark:text-amber-400 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-notch animate-spin"></i>
+                <span>Menyinkronkan otorisasi server...</span>
+            </div>
+
+            <!-- FORM 1: LOGIN USER TOKO -->
+            <form id="loginTokoForm" class="space-y-3.5">
                 <div>
-                    <label for="nikInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">NIK (Nomor Induk Karyawan)</label>
+                    <label for="nikTokoInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">NIK Tim Toko</label>
                     <div class="relative">
-                        <input type="text" id="nikInput" required placeholder="Masukkan NIK Anda..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <input type="text" id="nikTokoInput" required placeholder="Masukkan NIK Anda..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
                         <i class="fa-solid fa-id-card absolute left-3 top-3.5 text-slate-400 text-xs"></i>
                     </div>
                 </div>
 
-                <!-- Jabatan Dropdown -->
                 <div>
-                    <label for="jabatanSelect" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Jabatan</label>
+                    <label for="jabatanTokoSelect" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Jabatan</label>
                     <div class="relative">
-                        <select id="jabatanSelect" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <select id="jabatanTokoSelect" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
                             <option value="" disabled selected>-- Pilih Jabatan --</option>
                             <option value="COS">COS</option>
                             <option value="ACOS">ACOS</option>
@@ -92,18 +129,54 @@
                     </div>
                 </div>
 
-                <!-- Password Input Dinamis Tanggal HP User (DDMMYYYY) -->
                 <div>
-                    <label for="passwordInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Password</label>
+                    <label for="passwordTokoInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Password Akses Hari Ini</label>
                     <div class="relative">
-                        <input type="password" id="passwordInput" required placeholder="Silahkan isi password" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <input type="password" id="passwordTokoInput" required placeholder="Password dari PIC WH..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <i class="fa-solid fa-key absolute left-3 top-3.5 text-slate-400 text-xs"></i>
+                    </div>
+                </div>
+
+                <button type="submit" id="loginTokoBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm py-3 rounded-xl shadow-lg active:scale-[0.98] transition-all flex items-center justify-center space-x-2 mt-2">
+                    <span>Masuk System Tracking</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
+
+            <!-- FORM 2: LOGIN PIC WH (USER_MASTER) -->
+            <form id="loginMasterForm" class="hidden space-y-3.5">
+                <div>
+                    <label for="nikMasterInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">NIK PIC WH (10 Digit)</label>
+                    <div class="relative">
+                        <input type="text" id="nikMasterInput" maxlength="10" required placeholder="Ketik 10 digit NIK Master..." oninput="lookupMasterUser()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm font-mono rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                        <i class="fa-solid fa-user-shield absolute left-3 top-3.5 text-indigo-400 text-xs"></i>
+                    </div>
+                </div>
+
+                <!-- Auto-Fill Nama & Jabatan dari USER_MASTER -->
+                <div id="masterInfoBox" class="hidden bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-3 space-y-1 transition-all">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold uppercase text-indigo-400">PIC Terverifikasi</span>
+                        <span id="masterJabatanBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-indigo-500 text-white">-</span>
+                    </div>
+                    <div id="masterNamaDisplay" class="text-sm font-extrabold text-slate-800 dark:text-slate-100">-</div>
+                </div>
+
+                <div id="masterNotFoundBox" class="hidden bg-rose-500/10 border border-rose-500/30 rounded-xl p-2.5 text-[11px] text-rose-500 font-semibold text-center">
+                    <i class="fa-solid fa-circle-xmark mr-1"></i> NIK tidak terdaftar di USER_MASTER
+                </div>
+
+                <div>
+                    <label for="passwordMasterInput" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Password PIC (6 Angka Terakhir NIK)</label>
+                    <div class="relative">
+                        <input type="password" id="passwordMasterInput" maxlength="6" required placeholder="Masukkan Password..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
                         <i class="fa-solid fa-lock absolute left-3 top-3.5 text-slate-400 text-xs"></i>
                     </div>
                 </div>
 
-                <button type="submit" id="loginBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm py-3 rounded-xl shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center space-x-2 mt-2">
-                    <span>Masuk Dashboard</span>
-                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                <button type="submit" id="loginMasterBtn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-sm py-3 rounded-xl shadow-lg active:scale-[0.98] transition-all flex items-center justify-center space-x-2 mt-2">
+                    <span>Masuk sebagai PIC WH</span>
+                    <i class="fa-solid fa-shield-check text-xs"></i>
                 </button>
             </form>
         </div>
@@ -113,7 +186,7 @@
     <header class="sticky top-0 z-40 bg-slate-900/90 text-white backdrop-blur-xl border-b border-slate-800 shadow-xl overflow-hidden">
         <div class="absolute inset-0 shimmer-bg animate-shimmer pointer-events-none"></div>
         <div class="max-w-md mx-auto px-4 py-2.5 flex items-center justify-between relative z-10">
-            <!-- Logo Perusahaan -->
+            <!-- Logo Perusahaan & Nama Aplikasi -->
             <div class="flex items-center space-x-2.5">
                 <div class="w-9 h-9 rounded-xl bg-white/10 border border-white/20 p-1 flex items-center justify-center overflow-hidden shadow-inner shrink-0">
                     <img src="logo alfamidi.png" 
@@ -123,28 +196,26 @@
                 </div>
                 <div>
                     <h1 class="font-extrabold text-xs tracking-wide text-emerald-400 flex items-center gap-1">
-                        <span>TRACKING KIRIMAN</span>
+                        <span>SYSTEM TRACKING ONLINE</span>
                         <span class="inline-flex items-center px-1 py-0.2 rounded-full text-[8px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-0.5"></span>LIVE
                         </span>
                     </h1>
-                    <p class="text-[9px] text-slate-400 font-medium">Monitoring Armada Toko</p>
+                    <p class="text-[9px] text-slate-400 font-medium" id="userSessionLabel">Monitoring Armada Toko</p>
                 </div>
             </div>
 
-            <!-- Kanan Atas: Copyright / Credit & Controls -->
+            <!-- Kanan Atas: Copyright & Controls -->
             <div class="flex flex-col items-end gap-1">
-                <!-- Copyright & Inspiration (Pojok Kanan Atas) -->
                 <div class="text-[9px] text-slate-400 leading-none">
-                    © <span class="font-bold text-slate-200">Gagas</span> <span class="text-slate-500">|</span> Insp. <span class="font-bold text-slate-200">MNO</span>
+                    © <span class="font-bold text-slate-200">gagas</span> <span class="text-slate-500">|</span> Insp. <span class="font-bold text-slate-200">MNO</span>
                 </div>
 
-                <!-- Dark / Light Mode Toggle & Reload -->
                 <div class="flex items-center space-x-1.5">
                     <button id="refreshBtn" onclick="fetchData()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center justify-center transition active:scale-95" title="Refresh Data">
                         <i class="fa-solid fa-rotate text-[10px]" id="refreshIcon"></i>
                     </button>
-                    <button id="themeToggle" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 flex items-center justify-center transition active:scale-95">
+                    <button id="themeToggle" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 flex items-center justify-center transition active:scale-95" title="Ganti Tema">
                         <i class="fa-solid fa-sun text-[10px]" id="themeIcon"></i>
                     </button>
                 </div>
@@ -154,6 +225,43 @@
 
     <!-- MAIN CONTENT -->
     <main class="max-w-md mx-auto px-4 pt-4 flex-1 w-full space-y-4">
+
+        <!-- PANEL KHUSUS PIC WH MASTER: GENERATOR PASSWORD TOKO (1X SEHARI) -->
+        <section id="whMasterPanel" class="hidden bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 border border-indigo-500/40 rounded-2xl p-4 shadow-xl text-white space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xs font-extrabold text-indigo-300 uppercase tracking-wider">Password Akses Toko Harian</h2>
+                        <p class="text-[10px] text-slate-400">Terkunci 1x generate per hari demi keamanan</p>
+                    </div>
+                </div>
+                <span id="passLockBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Belum Dibuat
+                </span>
+            </div>
+
+            <!-- Area Tampilan Password atau Tombol Generate -->
+            <div id="passwordDisplayBox" class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] text-slate-400 block">Kode Password Toko Hari Ini:</span>
+                    <span id="generatedPasswordText" class="text-xl font-black font-mono tracking-widest text-emerald-400">------</span>
+                    <span id="generatedMetaText" class="text-[9px] text-slate-500 block mt-0.5">Klik generate untuk membuat password hari ini</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="copyPassBtn" onclick="copyDailyPassword()" class="hidden px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 transition active:scale-95" title="Salin Password">
+                        <i class="fa-regular fa-copy"></i> Salin
+                    </button>
+                    <button type="button" id="generatePassBtn" onclick="generateDailyPassword()" class="px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-extrabold text-white shadow-lg transition active:scale-95 flex items-center gap-1.5">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Generate</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- FILTER CONTAINER -->
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 shadow-sm space-y-3">
             <div class="grid grid-cols-1 gap-2.5">
@@ -180,9 +288,8 @@
             </div>
         </div>
 
-        <!-- LIST PENGIRIMAN DENGAN UNGGULAN RELEVANCE & TIME SORT -->
+        <!-- LIST PENGIRIMAN -->
         <div id="shipmentContainer" class="space-y-4">
-            <!-- Loading State -->
             <div class="text-center py-12 space-y-3">
                 <div class="inline-block w-10 h-10 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
                 <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Memuat data pengiriman terbaru...</p>
@@ -194,7 +301,62 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbw_FOTQ2bwkFc0mXy915R2I-NEcSenjNxpWlF8XDo0x4lsQ6UCtbO2MC_GREJMuCzzhfg/exec";
         let rawShipmentData = [];
+        let masterUsersList = [];
+        let todayActivePassword = null;
+        let currentSessionUser = null;
         let autoRefreshTimer = null;
+
+        // Toast Notification Helper (Menggantikan alert)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-600 text-white border-emerald-500',
+                error: 'bg-rose-600 text-white border-rose-500',
+                warning: 'bg-amber-500 text-slate-950 border-amber-400',
+                info: 'bg-slate-800 text-white border-slate-700'
+            };
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-exclamation',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+            toast.className = `${colors[type] || colors.info} border px-3.5 py-2.5 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 transition-all duration-300 transform translate-y-0 opacity-100`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Custom Confirm Dialog Helper (Menggantikan confirm)
+        function showCustomConfirm(text) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmModal');
+                const textEl = document.getElementById('confirmModalText');
+                const cancelBtn = document.getElementById('confirmCancelBtn');
+                const proceedBtn = document.getElementById('confirmProceedBtn');
+
+                textEl.textContent = text;
+                modal.classList.remove('hidden');
+
+                const cleanup = (result) => {
+                    modal.classList.add('hidden');
+                    cancelBtn.removeEventListener('click', onCancel);
+                    proceedBtn.removeEventListener('click', onProceed);
+                    resolve(result);
+                };
+
+                const onCancel = () => cleanup(false);
+                const onProceed = () => cleanup(true);
+
+                cancelBtn.addEventListener('click', onCancel);
+                proceedBtn.addEventListener('click', onProceed);
+            });
+        }
 
         // Theme Toggle Setup
         const themeToggleBtn = document.getElementById('themeToggle');
@@ -202,51 +364,241 @@
         
         themeToggleBtn.addEventListener('click', () => {
             const isDark = document.documentElement.classList.toggle('dark');
-            themeIcon.className = isDark ? 'fa-solid fa-sun text-xs' : 'fa-solid fa-moon text-xs';
+            themeIcon.className = isDark ? 'fa-solid fa-sun text-[10px]' : 'fa-solid fa-moon text-[10px]';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
 
-        // Initialize Theme
         if (localStorage.getItem('theme') === 'light') {
             document.documentElement.classList.remove('dark');
-            themeIcon.className = 'fa-solid fa-moon text-xs';
+            themeIcon.className = 'fa-solid fa-moon text-[10px]';
         }
 
-        // Generator Password Tanggal Hari Ini (DDMMYYYY) dari Perangkat HP User
-        function getTodayPassword() {
-            const now = new Date();
-            const day = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const year = now.getFullYear();
-            return `${day}${month}${year}`;
+        // Switch Tab Login (User Toko vs PIC WH Master)
+        function switchLoginTab(tab) {
+            const tabTokoBtn = document.getElementById('tabTokoBtn');
+            const tabMasterBtn = document.getElementById('tabMasterBtn');
+            const loginTokoForm = document.getElementById('loginTokoForm');
+            const loginMasterForm = document.getElementById('loginMasterForm');
+
+            if (tab === 'TOKO') {
+                tabTokoBtn.className = 'py-2 rounded-lg text-xs font-extrabold transition-all bg-emerald-600 text-white shadow';
+                tabMasterBtn.className = 'py-2 rounded-lg text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200';
+                loginTokoForm.classList.remove('hidden');
+                loginMasterForm.classList.add('hidden');
+            } else {
+                tabMasterBtn.className = 'py-2 rounded-lg text-xs font-extrabold transition-all bg-indigo-600 text-white shadow';
+                tabTokoBtn.className = 'py-2 rounded-lg text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200';
+                loginMasterForm.classList.remove('hidden');
+                loginTokoForm.classList.add('hidden');
+            }
         }
 
-        // Handle Form Login Submission
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // Sinkronisasi USER_MASTER & Password Harian saat Halaman Dibuka
+        async function loadAuthMetadata() {
+            const banner = document.getElementById('authSyncBanner');
+            try {
+                const res = await fetch(`${API_URL}?action=getAuthData&_nocache=${Date.now()}`);
+                const data = await res.json();
+                if (data.status === 'success') {
+                    masterUsersList = data.masterUsers || [];
+                    todayActivePassword = data.todayPassword || null;
+                    banner.classList.add('hidden');
+                    // Cek ulang jika user sudah sempat mengetik NIK master
+                    lookupMasterUser();
+                } else {
+                    banner.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><span>Gagal memuat data otorisasi</span>`;
+                }
+            } catch (err) {
+                console.error(err);
+                banner.innerHTML = `<i class="fa-solid fa-wifi"></i><span>Koneksi bermasalah, coba muat ulang</span>`;
+            }
+        }
+
+        // Auto-Lookup Nama & Jabatan dari USER_MASTER saat NIK diketik
+        function lookupMasterUser() {
+            const nikVal = document.getElementById('nikMasterInput').value.trim();
+            const infoBox = document.getElementById('masterInfoBox');
+            const notFoundBox = document.getElementById('masterNotFoundBox');
+            const namaDisplay = document.getElementById('masterNamaDisplay');
+            const jabatanBadge = document.getElementById('masterJabatanBadge');
+
+            if (!nikVal) {
+                infoBox.classList.add('hidden');
+                notFoundBox.classList.add('hidden');
+                return null;
+            }
+
+            const found = masterUsersList.find(u => u.nik === nikVal);
+            if (found) {
+                namaDisplay.textContent = found.nama;
+                jabatanBadge.textContent = found.jabatan;
+                infoBox.classList.remove('hidden');
+                notFoundBox.classList.add('hidden');
+                return found;
+            } else {
+                infoBox.classList.add('hidden');
+                if (nikVal.length >= 10) {
+                    notFoundBox.classList.remove('hidden');
+                } else {
+                    notFoundBox.classList.add('hidden');
+                }
+                return null;
+            }
+        }
+
+        // SUBMIT 1: LOGIN USER TOKO
+        document.getElementById('loginTokoForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const inputPass = document.getElementById('passwordInput').value.trim();
-            const expectedPass = getTodayPassword();
+            const nik = document.getElementById('nikTokoInput').value.trim();
+            const jabatan = document.getElementById('jabatanTokoSelect').value;
+            const inputPass = document.getElementById('passwordTokoInput').value.trim();
 
-            if (inputPass !== expectedPass) {
-                alert('Password salah. Silahkan isi password!');
+            if (!todayActivePassword || !todayActivePassword.password) {
+                showToast('Password hari ini belum di-generate oleh Tim WH!', 'warning');
                 return;
             }
 
-            // Jika Password Benar, Tutup Modal Login
-            document.getElementById('loginModal').classList.add('hidden');
-            
-            // Simpan NIK & Jabatan ke sheet Monitoring User
-            saveUserLogin(
-                document.getElementById('nikInput').value.trim(),
-                document.getElementById('jabatanSelect').value
-            );
+            if (inputPass !== todayActivePassword.password) {
+                showToast('Password salah! Minta password hari ini ke PIC WH.', 'error');
+                return;
+            }
 
-            // Ambil Data Dashboard
+            currentSessionUser = {
+                role: 'TOKO',
+                nik: nik,
+                nama: nik,
+                jabatan: jabatan
+            };
+
+            document.getElementById('userSessionLabel').textContent = `${nik} (${jabatan})`;
+            document.getElementById('loginModal').classList.add('hidden');
+            showToast(`Selamat datang, ${jabatan} (${nik})`, 'success');
+
+            saveUserLogin(nik, jabatan, 'TOKO');
             fetchData();
         });
 
-        // Simpan Data User Login ke Backend
-        function saveUserLogin(nik, jabatan) {
+        // SUBMIT 2: LOGIN PIC WH (MASTER)
+        document.getElementById('loginMasterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nik = document.getElementById('nikMasterInput').value.trim();
+            const inputPass = document.getElementById('passwordMasterInput').value.trim();
+
+            if (nik.length !== 10) {
+                showToast('NIK Master harus 10 digit angka!', 'warning');
+                return;
+            }
+
+            const masterUser = masterUsersList.find(u => u.nik === nik);
+            if (!masterUser) {
+                showToast('NIK tidak ditemukan pada sheet USER_MASTER!', 'error');
+                return;
+            }
+
+            // Password adalah 6 angka terakhir dari 10 digit NIK
+            const expectedPass = nik.slice(-6);
+            if (inputPass !== expectedPass) {
+                showToast('Password salah! Gunakan 6 angka terakhir NIK Anda.', 'error');
+                return;
+            }
+
+            currentSessionUser = {
+                role: 'MASTER',
+                nik: masterUser.nik,
+                nama: masterUser.nama,
+                jabatan: masterUser.jabatan
+            };
+
+            document.getElementById('userSessionLabel').textContent = `${masterUser.nama} • ${masterUser.jabatan}`;
+            document.getElementById('loginModal').classList.add('hidden');
+
+            // Tampilkan Panel Generator Password WH Master
+            setupMasterPasswordPanel();
+            showToast(`Login PIC WH berhasil: ${masterUser.nama}`, 'success');
+
+            saveUserLogin(masterUser.nik, `${masterUser.nama} (${masterUser.jabatan})`, 'PIC_WH_MASTER');
+            fetchData();
+        });
+
+        // Setup Tampilan Panel Generator Password di Dashboard PIC WH
+        function setupMasterPasswordPanel() {
+            const panel = document.getElementById('whMasterPanel');
+            const badge = document.getElementById('passLockBadge');
+            const passText = document.getElementById('generatedPasswordText');
+            const metaText = document.getElementById('generatedMetaText');
+            const genBtn = document.getElementById('generatePassBtn');
+            const copyBtn = document.getElementById('copyPassBtn');
+
+            panel.classList.remove('hidden');
+
+            if (todayActivePassword && todayActivePassword.password) {
+                passText.textContent = todayActivePassword.password;
+                metaText.textContent = `Dibuat oleh ${todayActivePassword.generatedByNama} (${todayActivePassword.tanggal})`;
+                badge.textContent = 'Terkunci (Sudah Dibuat)';
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                genBtn.classList.add('hidden');
+                copyBtn.classList.remove('hidden');
+            } else {
+                passText.textContent = '------';
+                metaText.textContent = 'Klik tombol Generate (hanya bisa 1x hari ini)';
+                badge.textContent = 'Tersedia 1x Hari Ini';
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+                genBtn.classList.remove('hidden');
+                copyBtn.classList.add('hidden');
+            }
+        }
+
+        // Eksekusi Generate Password Toko (1x Sehari)
+        async function generateDailyPassword() {
+            if (!currentSessionUser || currentSessionUser.role !== 'MASTER') return;
+
+            const genBtn = document.getElementById('generatePassBtn');
+            genBtn.disabled = true;
+            genBtn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i><span>Proses...</span>`;
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({
+                        action: 'generatePassword',
+                        nik: currentSessionUser.nik,
+                        nama: currentSessionUser.nama
+                    })
+                });
+                const result = await res.json();
+
+                if (result.status === 'success' || result.status === 'locked') {
+                    todayActivePassword = result.passwordData;
+                    setupMasterPasswordPanel();
+                    showToast(result.message, result.status === 'success' ? 'success' : 'warning');
+                } else {
+                    showToast('Gagal generate password: ' + result.message, 'error');
+                    genBtn.disabled = false;
+                    genBtn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i><span>Generate</span>`;
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal terhubung ke server untuk generate password.', 'error');
+                genBtn.disabled = false;
+                genBtn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i><span>Generate</span>`;
+            }
+        }
+
+        // Salin Password ke Clipboard
+        function copyDailyPassword() {
+            if (!todayActivePassword || !todayActivePassword.password) return;
+            const tempInput = document.createElement('input');
+            tempInput.value = todayActivePassword.password;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast(`Password ${todayActivePassword.password} disalin!`, 'success');
+        }
+
+        // Simpan Log Login ke Backend
+        function saveUserLogin(nik, jabatan, roleType) {
             fetch(API_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -254,7 +606,8 @@
                 body: JSON.stringify({
                     action: 'login',
                     nik: nik,
-                    jabatan: jabatan
+                    jabatan: jabatan,
+                    roleType: roleType
                 })
             }).catch(err => console.error("Error logging user:", err));
         }
@@ -265,7 +618,7 @@
             refreshIcon.classList.add('animate-spin');
 
             try {
-                const response = await fetch(`${API_URL}?_nocache=${new Date().getTime()}`);
+                const response = await fetch(`${API_URL}?action=getData&_nocache=${new Date().getTime()}`);
                 const result = await response.json();
 
                 if (result.status === "success") {
@@ -332,7 +685,6 @@
                 return;
             }
 
-            // Grouping by NOPOL
             const grouped = {};
             data.forEach(item => {
                 const key = item.nopol || "ARMADA LAINNYA";
@@ -347,7 +699,6 @@
 
                 html += `
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-                    <!-- NOPOL HEADER -->
                     <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-3 px-4 flex items-center justify-between border-b border-slate-700/50">
                         <div class="flex items-center space-x-2">
                             <span class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xs font-bold">
@@ -360,7 +711,6 @@
                         </div>
                     </div>
 
-                    <!-- LIST TOKO DALAM ARMADA INI -->
                     <div class="p-3 space-y-3 divide-y divide-slate-100 dark:divide-slate-800/80">
                 `;
 
@@ -369,7 +719,6 @@
 
                     html += `
                         <div class="${idx > 0 ? 'pt-3' : ''} space-y-2.5">
-                            <!-- Header Toko & Status -->
                             <div class="flex items-start justify-between gap-2">
                                 <div>
                                     <div class="flex items-center space-x-1.5">
@@ -380,12 +729,11 @@
                                         <span><i class="fa-solid fa-map-pin text-rose-500 mr-1"></i>${item.wilayah}</span>
                                     </div>
                                 </div>
-                                <div>
+                                <div class="text-right shrink-0">
                                     ${statusObj.badgeHtml}
                                 </div>
                             </div>
 
-                            <!-- Waktu & Estimasi Tiba (Jam Diperbesar) -->
                             <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
                                 <div>
                                     <span class="text-[10px] font-bold text-slate-400 block uppercase">Jam Berangkat</span>
@@ -399,9 +747,7 @@
                                 </div>
                             </div>
 
-                            <!-- Detail Container, DOS & Faktur -->
                             <div class="grid grid-cols-2 gap-2 items-center">
-                                <!-- Box Muatan (Poin 5: Diperbesar) -->
                                 <div class="flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 p-2 rounded-xl">
                                     <i class="fa-solid fa-boxes-packing text-amber-500 text-lg"></i>
                                     <div>
@@ -412,7 +758,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Detail Faktur & Rp Faktur (Poin 6) -->
                                 <div class="text-right pl-2">
                                     <span class="text-[10px] font-bold text-slate-400 block">No. Faktur</span>
                                     <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block truncate">${item.noFaktur || '-'}</span>
@@ -420,7 +765,6 @@
                                 </div>
                             </div>
 
-                            <!-- Tombol Konfirmasi Berangkat (End Toko) -->
                             <div class="pt-1">
                                 ${renderConfirmButton(item)}
                             </div>
@@ -437,7 +781,6 @@
             container.innerHTML = html;
         }
 
-        // Render Tombol Konfirmasi Berangkat / Actual Timestamp
         function renderConfirmButton(item) {
             if (item.endToko) {
                 return `
@@ -456,12 +799,41 @@
             </button>`;
         }
 
-        // Logika Status Real-Time & Selisih Waktu Tiba
+        // Kalkulasi Status Real-Time + Selisih Waktu Tiba (Hari, Jam, Menit)
         function calculateStatus(item) {
             if (item.endToko) {
-                // Konfirmasi Sudah Diklik
+                const actualDate = parseTimestampString(item.endToko);
+                const estDatePart = parseDateString(item.tglSampai || item.tglLoading);
+
+                if (actualDate && estDatePart && item.estSampai) {
+                    const [estH, estM] = item.estSampai.split(':').map(Number);
+                    const estDate = new Date(estDatePart.year, estDatePart.month - 1, estDatePart.day, estH, estM);
+                    const diffMs = actualDate.getTime() - estDate.getTime();
+                    const absMins = Math.floor(Math.abs(diffMs) / 60000);
+
+                    const days = Math.floor(absMins / 1440);
+                    const hours = Math.floor((absMins % 1440) / 60);
+                    const mins = absMins % 60;
+
+                    let durationParts = [];
+                    if (days > 0) durationParts.push(`${days} hr`);
+                    if (hours > 0) durationParts.push(`${hours} jam`);
+                    if (mins > 0 || durationParts.length === 0) durationParts.push(`${mins} mnt`);
+                    const durationStr = durationParts.join(' ');
+
+                    if (diffMs > 60000) {
+                        return {
+                            badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-rose-500/20 text-rose-500 border border-rose-500/30 inline-flex items-center gap-1"><i class="fa-solid fa-clock-rotate-left"></i> Selesai (Telat ${durationStr})</span>`
+                        };
+                    } else if (diffMs < -60000) {
+                        return {
+                            badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 inline-flex items-center gap-1"><i class="fa-solid fa-bolt"></i> Selesai (Lebih Cepat ${durationStr})</span>`
+                        };
+                    }
+                }
+
                 return {
-                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1"><i class="fa-solid fa-check"></i> Selesai</span>`
+                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1"><i class="fa-solid fa-check"></i> Selesai (Tepat Waktu)</span>`
                 };
             }
 
@@ -477,20 +849,30 @@
             const [hh, mm] = item.jamBerangkat.split(':').map(Number);
             const departureTime = new Date(dateLoadingPart.year, dateLoadingPart.month - 1, dateLoadingPart.day, hh, mm);
 
+            const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const loadingMidnight = new Date(dateLoadingPart.year, dateLoadingPart.month - 1, dateLoadingPart.day);
+
+            if (loadingMidnight < todayMidnight) {
+                return {
+                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-500/20 text-slate-400 border border-slate-500/30 inline-flex items-center gap-1"><i class="fa-solid fa-check-double"></i> Sudah Selesai</span>`
+                };
+            }
+
             if (now < departureTime) {
                 return {
-                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1"><i class="fa-solid fa-clock"></i> Belum Berangkat</span>`
+                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 inline-flex items-center gap-1"><i class="fa-solid fa-clock"></i> Belum Berangkat</span>`
                 };
             } else {
                 return {
-                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-500/20 text-sky-500 border border-sky-500/30 animate-pulse flex items-center gap-1"><i class="fa-solid fa-truck-moving"></i> Dalam Perjalanan</span>`
+                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-500/20 text-sky-500 border border-sky-500/30 animate-pulse inline-flex items-center gap-1"><i class="fa-solid fa-truck-moving"></i> Dalam Perjalanan</span>`
                 };
             }
         }
 
-        // Action Trigger Konfirmasi Berangkat ke Google Apps Script
+        // Action Trigger Konfirmasi Berangkat
         async function confirmDeparture(rowIndex, btnElem) {
-            if (!confirm("Apakah Anda yakin armada telah berangkat dari toko ini?")) return;
+            const confirmed = await showCustomConfirm("Apakah Anda yakin armada telah berangkat dari toko ini?");
+            if (!confirmed) return;
 
             btnElem.disabled = true;
             btnElem.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i> <span>Menyimpan...</span>`;
@@ -507,14 +889,15 @@
 
                 const resData = await response.json();
                 if (resData.status === "success") {
-                    fetchData(); // Reload data langsung
+                    showToast("Konfirmasi berangkat berhasil disimpan!", "success");
+                    fetchData();
                 } else {
-                    alert("Gagal menyimpan konfirmasi: " + resData.message);
+                    showToast("Gagal menyimpan konfirmasi: " + resData.message, "error");
                     btnElem.disabled = false;
                 }
             } catch (err) {
                 console.error(err);
-                alert("Terjadi kesalahan jaringan.");
+                showToast("Terjadi kesalahan jaringan.", "error");
                 btnElem.disabled = false;
             }
         }
@@ -524,9 +907,20 @@
             if (!dateStr) return null;
             const parts = dateStr.split('/');
             if (parts.length === 3) {
-                return { day: parseInt(parts[0]), month: parseInt(parts[1]), year: parseInt(parts[2]) };
+                let y = parseInt(parts[2]);
+                if (y < 100) y += 2000;
+                return { day: parseInt(parts[0]), month: parseInt(parts[1]), year: y };
             }
             return null;
+        }
+
+        function parseTimestampString(tsStr) {
+            if (!tsStr) return null;
+            const [datePart, timePart] = tsStr.split(' ');
+            const d = parseDateString(datePart);
+            if (!d || !timePart) return null;
+            const [h, m, s] = timePart.split(':').map(Number);
+            return new Date(d.year, d.month - 1, d.day, h || 0, m || 0, s || 0);
         }
 
         function formatRupiah(angka) {
@@ -540,6 +934,11 @@
                     <p class="text-xs font-bold">${msg}</p>
                 </div>`;
         }
+
+        // Inisialisasi Awal
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAuthMetadata();
+        });
 
         // Auto Refresh Setiap 15 Detik
         autoRefreshTimer = setInterval(() => {
